@@ -6,8 +6,8 @@ ApplicationWindow {
     visible: true
     title: "Virtual camera control center (VCCC)"
     property int margin: 11
-    width: (mainLayout.implicitWidth + (2 * margin))*3
-    height: (mainLayout.implicitHeight + (2 * margin))*3
+    width: (mainLayout.implicitWidth + (2 * margin))
+    height: (mainLayout.implicitHeight + (2 * margin))
     minimumWidth: mainLayout.Layout.implicitWidth + margin * 2
     minimumHeight: mainLayout.Layout.implicitHeight + margin * 2
 
@@ -71,12 +71,14 @@ ApplicationWindow {
             title: "Effects"
             Layout.fillWidth: true
 
-            GridLayout {
-                columns: 3
-                anchors.centerIn: parent
+            RowLayout {
+                // columns: 6
+                // anchors.centerIn: parent
+                // Layout.fillWidth: true
+                // anchors.fill: parent
 
                 Repeater {
-                    model: ["None", "Sepia", "RedEye", "Star Wars"]
+                    model: ["None", "Sepia", "RedEye", "Star Wars", "Snowfall", "Mirror in the middle", "Hat"]
                     RadioButton {
                         text: modelData
                         checked: modelData === "None"

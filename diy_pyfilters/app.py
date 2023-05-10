@@ -12,26 +12,12 @@ import pyvirtualcam
 import numpy as np
 import mediapipe as mp
 
+
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QObject, Signal, Slot, QThreadPool
 
 import winenumerator
-
-
-def sepia(src_image):
-    gray = cv2.cvtColor(src_image, cv2.COLOR_BGR2GRAY)
-    normalized_gray = np.array(gray, np.float32) / 255
-    # solid color
-    sepia = np.ones(src_image.shape)
-    sepia[:, :, 0] *= 153  # B
-    sepia[:, :, 1] *= 204  # G
-    sepia[:, :, 2] *= 255  # R
-    # hadamard
-    sepia[:, :, 0] *= normalized_gray  # B
-    sepia[:, :, 1] *= normalized_gray  # G
-    sepia[:, :, 2] *= normalized_gray  # R
-    return np.array(sepia, np.uint8)
 
 
 def shift_image(img: np.ndarray, dx: int, dy: int) -> np.ndarray:
@@ -127,7 +113,7 @@ class SepiaEffect(VideoEffect):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def run(self, frame: np.array, stopped: bool = False) -> np.array:
+    def run(self, frame: np.array) -> np.array:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         normalized_gray = np.array(gray, np.float32) / 255
         # solid color
@@ -142,8 +128,8 @@ class SepiaEffect(VideoEffect):
         return np.array(sepia, np.uint8)
 
 
-class NoneEffect(VideoEffect):
-    def run(self, frame: np.ndarray, stopped: bool = False) -> np.ndarray:
+class IdentityEffect(VideoEffect):
+    def run(self, frame: np.ndarray) -> np.ndarray:
         return frame
 
 
@@ -160,7 +146,7 @@ class StarWarsEffect(VideoEffect):
         self.segment = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=0)
         self.down_factor = kwargs.get("down_factor", 0.6)
         self.background_img = cv2.imread("star_wars_background.jpg")
-        print(f"background_imd: {self.background_img.shape}")
+        print("StarWarsEffect initialized")
 
     def _post_process_mask(_, mask):
         mask = cv2.dilate(mask, np.ones((10, 10), np.uint8), iterations=1)
@@ -191,10 +177,7 @@ class StarWarsEffect(VideoEffect):
         out = cv2.addWeighted(img, 0.5, holo_blur, 0.6, 0)
         return out
 
-    def run(self, frame: np.ndarray, stopped: bool = False) -> np.ndarray:
-        if stopped:
-            return frame
-
+    def run(self, frame: np.ndarray) -> np.ndarray:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         mask = self._get_mask(frame)
@@ -241,6 +224,149 @@ class StarWarsEffect(VideoEffect):
         return full_frame
 
 
+class SnowfallEffect(VideoEffect):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.num_flakes = kwargs.get("num_flakes", 100)
+        self.flake_size = kwargs.get("flake_size", 2)
+        self.speed = kwargs.get("speed", 5)
+        self.set_frame_shape(kwargs.get("frame_shape", (480, 640)))
+
+    def set_frame_shape(self, frame_shape):
+        self.frame_shape = frame_shape
+        self.flakes = np.ones((self.num_flakes, 2), dtype=np.float32)
+        self.flakes[:, 0] = np.random.uniform(
+            0, frame_shape[1], self.num_flakes
+        )  # x-coordinate
+        self.flakes[:, 1] = np.random.uniform(
+            -frame_shape[0], 0, self.num_flakes
+        )  # y-coordinate
+
+    def run(self, frame: np.ndarray) -> np.ndarray:
+        # frame_snow = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_snow = frame
+        for i in range(self.num_flakes):
+            cv2.circle(
+                frame_snow,
+                (int(self.flakes[i, 0]), int(self.flakes[i, 1])),
+                self.flake_size,
+                (255, 255, 255),
+                -1,
+            )
+
+            self.flakes[i, 1] += self.speed  # Move snowflakes downwards
+            self.flakes[i, 0] += np.random.uniform(
+                -1, 1
+            )  # Add a random drift in x-axis
+
+            # If the flake has moved off the bottom or the sides of the screen, reset it to the top and a random x-coordinate
+            if (
+                self.flakes[i, 1] > self.frame_shape[0]
+                or self.flakes[i, 0] < 0
+                or self.flakes[i, 0] > self.frame_shape[1]
+            ):
+                self.flakes[i, :] = (np.random.uniform(0, self.frame_shape[1]), 0)
+
+        return frame_snow
+
+
+class MirrorInTheMiddleEffect(VideoEffect):
+    def run(self, frame: np.ndarray) -> np.ndarray:
+        # frame_mirror = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # frame_mirror = frame
+        # frame_mirror[:, : int(frame_mirror.shape[1] / 2), :] = np.fliplr(
+        #    frame_mirror[:, : int(frame_mirror.shape[1] / 2), :]
+        # )
+        # return frame_mirror
+        mid_point = frame.shape[1] // 2
+        left_half = frame[:, :mid_point]
+        mirrored_left = cv2.flip(left_half, 1)  # Flip the left half horizontally
+        mirrored_frame = np.concatenate(
+            (left_half, mirrored_left), axis=1
+        )  # Concatenate the original and mirrored halves
+        return mirrored_frame
+
+
+class HatEffect(VideoEffect):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+        self.hat_img = cv2.imread("hat.png", -1)
+        print(f"Hat image shape: {self.hat_img.shape}")
+        print("Will use hat effect")
+        try:
+            import dlib
+
+            self.has_dlib = True
+            self.detector = dlib.get_frontal_face_detector()
+            self.predictor = dlib.shape_predictor(
+                "shape_predictor_68_face_landmarks.dat"
+            )
+        except ImportError:
+            self.has_dlib = False
+        print(f"Hat Effect initialized, has dlib: {self.has_dlib}")
+
+    def run(self, frame: np.ndarray) -> np.ndarray:
+        if not self.has_dlib:
+            return frame
+        frame_hat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        gray = cv2.cvtColor(frame_hat, cv2.COLOR_BGR2GRAY)
+        faces = self.detector(gray, 1)
+        for face in faces:
+            landmarks = self.predictor(gray, face)
+
+            # Coordinates for the top of the head
+            top_head_x = landmarks.part(27).x
+            top_head_y = landmarks.part(27).y
+
+            # Coordinates for the hat size (from top of head to chin)
+            hat_width = face.width()
+            hat_height = landmarks.part(8).y - top_head_y
+
+            # Resize hat
+            resized_hat = cv2.resize(self.hat_img, (hat_width, hat_height))
+
+            # Calculate position for the hat
+            start_x = top_head_x - hat_width // 2
+            start_y = face.top() - hat_height
+            # end_x = start_x + hat_width
+            # end_y = start_y + hat_height
+
+            # Add hat to frame
+            for i in range(resized_hat.shape[0]):
+                for j in range(resized_hat.shape[1]):
+                    y_pos = start_y + i
+                    x_pos = start_x + j
+                    if (
+                        y_pos < frame.shape[0] and x_pos < frame.shape[1]
+                    ):  # Ensure within frame
+                        alpha = resized_hat[i, j][3] / 255.0  # Alpha value [0, 1]
+                        frame[start_y + i, start_x + j] = (1.0 - alpha) * frame[
+                            start_y + i, start_x + j
+                        ] + alpha * resized_hat[i, j, :3]
+                        # frame[y_pos, x_pos, :3] = resized_hat[i, j, :3]
+                    # if resized_hat[i, j][3] != 0:  # alpha 0 is transparent
+                    # frame[start_y + i, start_x + j] = resized_hat[i, j, :3]
+
+            # top = landmarks.part(24).y
+            # left = landmarks.part(0).x
+            # bottom = landmarks.part(8).y
+            # right = landmarks.part(16).x
+
+            # hat_width = right - left
+            # hat_height = int(hat_width * self.hat_img.shape[0] / self.hat_img.shape[1])
+            # hat = cv2.resize(self.hat_img, (hat_width, hat_height))
+            # hat_gray = cv2.cvtColor(hat, cv2.COLOR_BGR2GRAY)
+            # _, hat_mask = cv2.threshold(hat_gray, 25, 255, cv2.THRESH_BINARY_INV)
+            # hat_area = frame_hat[top - hat_height : top, left : left + hat_width]
+            # hat_area_no_hat = cv2.bitwise_and(
+            #    hat_area, hat_area, mask=cv2.bitwise_not(hat_mask)
+            # )
+            # final_hat = cv2.add(hat_area_no_hat, hat)
+            # frame_hat[top - hat_height : top, left : left + hat_width] = final_hat
+        return frame
+
+
 class CameraReader(QObject):
     """Class that reads from a camera and emits frames as QImage
 
@@ -261,10 +387,13 @@ class CameraReader(QObject):
 
         self.effect = "None"
         self._effects = {
-            "None": NoneEffect(),
+            "None": IdentityEffect(),
             "Sepia": SepiaEffect(),
             "RedEye": RedEyeEffect(),
             "Star Wars": StarWarsEffect(),
+            "Snowfall": SnowfallEffect(),
+            "Mirror in the middle": MirrorInTheMiddleEffect(),
+            "Hat": HatEffect(),
         }
 
     def stop(self):
@@ -293,6 +422,9 @@ class CameraReader(QObject):
             # print(f"[reader] No camera or virtual camera")
             return
 
+        if self.stopped:
+            return
+
         ret, frame = self._cap.read()
         if not ret:
             return
@@ -300,11 +432,16 @@ class CameraReader(QObject):
         # print(f"[reader] Read frame: {frame.shape}")
         # print(f"[reader] virtual: {self._virtual.width}x{self._virtual.height} @ {self._virtual.fps}fps")
 
+        if self.stopped:
+            return
+
         if self.effect in self._effects:
-            processed = self._effects[self.effect].run(frame, self.stopped)
+            processed = self._effects[self.effect].run(frame)
         else:
             processed = frame
 
+        if self.stopped:
+            return
         self._virtual.send(processed)
         self._virtual.sleep_until_next_frame()
 
@@ -318,8 +455,10 @@ class CameraReader(QObject):
 
         if self._cap is not None:
             self._cap.release()
+            self._cap = None
         if self._virtual is not None:
             self._virtual.close()
+            self._virtual = None
 
         self._cap = cv2.VideoCapture(int(camera_id), cv2.CAP_DSHOW)
         # self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.origin_width)
@@ -334,6 +473,9 @@ class CameraReader(QObject):
         print(
             f"[reader] origin: {self.origin_width}x{self.origin_height} @ {self.origin_fps}fps"
         )
+
+        _, frame = self._cap.read()
+        self._effects["Snowfall"].set_frame_shape(frame.shape)
 
         if not self._virtual:
             self._virtual = pyvirtualcam.Camera(

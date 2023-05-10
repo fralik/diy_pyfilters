@@ -27,6 +27,8 @@ You would need to install the following:
 2. Create a virtual environment and activate it. Create virtual environment with symlinks enabled by running `python -m venv --symlinks venv`.
 3. Activate virtual environment by running `venv\Scripts\activate.bat`.
 4. Install dependencies by running `pip install -r requirements.txt`.
+5. **Optional**. One video filter is based on dlib library. It is distributed in source and hence not part of requirements.txt.
+  You may use pre-compiled version from the internet. Here is one: https://github.com/sachadee/Dlib . You will also need shape prediction model file (shape_predictor_68_face_landmarks.dat) from [here](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2). Extract it to the same directory as `app.py` file.
 5. In order to build C++ library, we need to point compiler to header and library files.
   I tried my best to make it automatic via the script `start_vs.cmd`.
   Use this script to start Visual Studio 2022. Adjust if necessary.
