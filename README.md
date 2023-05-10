@@ -65,3 +65,15 @@ In addition, the C++ part may be used without Visual Studio and installed direct
 
 Python part is a Qt-based application. The GUI allows camera and filter selection. Interface is defined via QML in `app.qml` file. The main application is defined in `app.py` file.
 For simplicity all the code is inside this file.
+
+The list of currently implemented video filters:
+
+| **Name**    	| **Description** 	|
+|-----------	|----------------	|
+| Sepia   	| [Sepia effect](https://en.wikipedia.org/wiki/Sepia_(color))            	|
+| RedEye 	| Face detection using OpenCV, face is highlighted. Red circle is plotted on top of one eye.            	|
+| Star Wars | The famous [star wars](https://elder.dev/posts/open-source-virtual-background/) effect by Benjamen Elder.            	|
+| Snowfall  | Simple snowfall effect.            	|
+| Mirror in the middle | Hallucination with a splitted and mirrored face.            	|
+| Hat | Hat on top of the head.            	|
+| Stylization | [Stylization](https://www.inf.ufrgs.br/~eslgastal/DomainTransform/) from OpenCV |
