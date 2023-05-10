@@ -1,6 +1,3 @@
-from calendar import c
-from concurrent.futures import process
-from tkinter import SEL
 from typing import Tuple
 import sys
 import time
@@ -137,11 +134,6 @@ class StarWarsEffect(VideoEffect):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-        # model_path = Path("./data")
-        # model_path.mkdir(exist_ok=True, parents=True)
-        # self.bodypix_model = load_model(download_model(
-        #    BodyPixModelPaths.MOBILENET_FLOAT_50_STRIDE_16
-        # ))
         self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
         self.segment = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=0)
         self.down_factor = kwargs.get("down_factor", 0.6)
@@ -155,7 +147,6 @@ class StarWarsEffect(VideoEffect):
 
     def _get_mask(self, frame, threshold: float = 0.5) -> np.ndarray:
         results = self.segment.process(frame)
-        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         image_seg_mask = results.segmentation_mask
         binary_mask = (image_seg_mask > threshold).astype(np.uint8)
         return binary_mask
@@ -272,12 +263,6 @@ class SnowfallEffect(VideoEffect):
 
 class MirrorInTheMiddleEffect(VideoEffect):
     def run(self, frame: np.ndarray) -> np.ndarray:
-        # frame_mirror = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        # frame_mirror = frame
-        # frame_mirror[:, : int(frame_mirror.shape[1] / 2), :] = np.fliplr(
-        #    frame_mirror[:, : int(frame_mirror.shape[1] / 2), :]
-        # )
-        # return frame_mirror
         mid_point = frame.shape[1] // 2
         left_half = frame[:, :mid_point]
         mirrored_left = cv2.flip(left_half, 1)  # Flip the left half horizontally
@@ -285,6 +270,13 @@ class MirrorInTheMiddleEffect(VideoEffect):
             (left_half, mirrored_left), axis=1
         )  # Concatenate the original and mirrored halves
         return mirrored_frame
+
+
+class StylizationEffect(VideoEffect):
+    def run(self, frame: np.ndarray) -> np.ndarray:
+        image_blur = cv2.GaussianBlur(frame, (15, 15), 0, 0)
+        image_style = cv2.stylization(image_blur, sigma_s=60, sigma_r=0.2)
+        return image_style
 
 
 class HatEffect(VideoEffect):
@@ -329,8 +321,6 @@ class HatEffect(VideoEffect):
             # Calculate position for the hat
             start_x = top_head_x - hat_width // 2
             start_y = face.top() - hat_height
-            # end_x = start_x + hat_width
-            # end_y = start_y + hat_height
 
             # Add hat to frame
             for i in range(resized_hat.shape[0]):
@@ -344,26 +334,6 @@ class HatEffect(VideoEffect):
                         frame[start_y + i, start_x + j] = (1.0 - alpha) * frame[
                             start_y + i, start_x + j
                         ] + alpha * resized_hat[i, j, :3]
-                        # frame[y_pos, x_pos, :3] = resized_hat[i, j, :3]
-                    # if resized_hat[i, j][3] != 0:  # alpha 0 is transparent
-                    # frame[start_y + i, start_x + j] = resized_hat[i, j, :3]
-
-            # top = landmarks.part(24).y
-            # left = landmarks.part(0).x
-            # bottom = landmarks.part(8).y
-            # right = landmarks.part(16).x
-
-            # hat_width = right - left
-            # hat_height = int(hat_width * self.hat_img.shape[0] / self.hat_img.shape[1])
-            # hat = cv2.resize(self.hat_img, (hat_width, hat_height))
-            # hat_gray = cv2.cvtColor(hat, cv2.COLOR_BGR2GRAY)
-            # _, hat_mask = cv2.threshold(hat_gray, 25, 255, cv2.THRESH_BINARY_INV)
-            # hat_area = frame_hat[top - hat_height : top, left : left + hat_width]
-            # hat_area_no_hat = cv2.bitwise_and(
-            #    hat_area, hat_area, mask=cv2.bitwise_not(hat_mask)
-            # )
-            # final_hat = cv2.add(hat_area_no_hat, hat)
-            # frame_hat[top - hat_height : top, left : left + hat_width] = final_hat
         return frame
 
 
@@ -394,6 +364,7 @@ class CameraReader(QObject):
             "Snowfall": SnowfallEffect(),
             "Mirror in the middle": MirrorInTheMiddleEffect(),
             "Hat": HatEffect(),
+            "Stylization": StylizationEffect(),
         }
 
     def stop(self):
@@ -535,8 +506,6 @@ class CameraEnumerator(QObject):
             self._emit_cameras()
             return
 
-        # results = opencv_list_cameras(self.used_camera)
-        # cameras = [x for x in winenumerator.list_cameras() if filter_camera(x)]
         cameras = [x for x in winenumerator.list_cameras() if filter_camera(x)]
 
         if self._cameras != cameras:
@@ -556,17 +525,7 @@ def filter_camera(camera: Tuple[int, str]) -> bool:
 
 
 def main():
-    # print('wait for input')
-    #  input()
-
     cameras = [x for x in winenumerator.list_cameras() if filter_camera(x)]
-
-    # cameras = [x for x in winenumerator.list_cameras() if filter_camera(x)]
-    # cameras.sort(key=lambda x: (x[0], x[1]))
-    # for camera in cameras:
-    #    print(camera)
-
-    # cameras = opencv_list_cameras()
 
     app = QGuiApplication(sys.argv)
 

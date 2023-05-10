@@ -17,7 +17,6 @@ ApplicationWindow {
     Connections {
         target: cameraSelector
         function onCurrentIndexChanged() {
-            console.log("in cameraSelector");
             console.log("Selected camera: " + cameraSelector.model[cameraSelector.currentIndex])
             // enumerator.setUsedCamera(cameraSelector.model[cameraSelector.currentIndex])
             reader.set_camera(cameraSelector.model[cameraSelector.currentIndex])
@@ -26,24 +25,8 @@ ApplicationWindow {
     Connections {
         target: enumerator
         function onUpdated(cameras) {
-            // console.log("Updated in qml " + cameras)
             
             cameraSelector.model = ["None"].concat(cameras);
-            /*cameraSelector.model.clear()
-            for (var i = 0; i < cameras.length; i++) {
-                console.log("Adding camera " + cameras[i])
-                cameraSelector.model.append({text: cameras[i]})
-            }*/
-
-            // cameraSelector.model = cameras
-            /*cameraSelector.model.clear()
-            for (var i = 0; i < cameras.length; i++) {
-                let camera = cameras[i];
-                cameraSelector.model.append({
-                    id: camera[0],
-                    displayText: camera[1] + ", " + camera[2][0] + "x" + camera[2][1],
-                })
-            }*/
         }
     }
 
@@ -71,14 +54,12 @@ ApplicationWindow {
             title: "Effects"
             Layout.fillWidth: true
 
-            RowLayout {
-                // columns: 6
-                // anchors.centerIn: parent
-                // Layout.fillWidth: true
-                // anchors.fill: parent
-
+            GridLayout {
+                columns: 4
+                columnSpacing: 15
+                rowSpacing: 10
                 Repeater {
-                    model: ["None", "Sepia", "RedEye", "Star Wars", "Snowfall", "Mirror in the middle", "Hat"]
+                    model: ["None", "Sepia", "RedEye", "Star Wars", "Snowfall", "Mirror in the middle", "Hat", "Stylization"]
                     RadioButton {
                         text: modelData
                         checked: modelData === "None"
@@ -98,20 +79,4 @@ ApplicationWindow {
             Layout.fillHeight: true
         }
     }
-/*    GridLayout {
-        columns: 2
-        anchors.fill: parent
-
-        Text { text: "Select camera:"; font.bold: true; }
-        ComboBox {
-            id: cameraSelector
-            Layout.fillWidth: true
-            model: ["Camera 1", "Camera 2", "Camera 3"]
-        }
-        Text { text: "words"; color: "red"; Layout.fillWidth: true }
-        Text { text: "in"; font.underline: true }
-        Text { text: "a"; font.pixelSize: 20 }
-        Text { text: "row"; font.strikeout: true }
-    }
-    */
 }
