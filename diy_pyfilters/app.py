@@ -31,12 +31,6 @@ def shift_image(img: np.ndarray, dx: int, dy: int) -> np.ndarray:
     return img
 
 
-def stylization(frame):
-    image_blur = cv2.GaussianBlur(frame, (15, 15), 0, 0)
-    image_style = cv2.stylization(image_blur, sigma_s=60, sigma_r=0.2)
-    return image_style
-
-
 def opencv_list_cameras(used_camera: int = -1) -> list[str]:
     index = 0
     results = []

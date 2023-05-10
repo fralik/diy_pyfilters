@@ -34,3 +34,34 @@ You would need to install the following:
   Use this script to start Visual Studio 2022. Adjust if necessary.
 6. Set `Python Environments` to your environment for `diy_pyfilters` project.
 7. Run or debug `diy_pyfilters` project.
+
+## Debug Python and C++ together
+
+This project can be used as a demo for mixed-mode debugging in Visual Studio 2022. It assumes you use C++ code from a Python application.
+The project is heavily based on the [official documentation](https://learn.microsoft.com/en-us/visualstudio/python/debugging-mixed-mode-c-cpp-python-in-visual-studio?view=vs-2022).
+
+This is how to enable mixed-mode debugging in Visual Studio 2022:
+![enabling debugging](https://learn.microsoft.com/en-us/visualstudio/python/media/mixed-mode-debugging-enable-native.png?view=vs-2022)
+
+I was only be able to do mixed-mode debugging via `Start Debugging` (F5) command with Python 3.9. Python 3.10 and 3.11 did not work for me.
+Attaching debugger to a running process did work regardless of Python version.
+
+## Description
+
+This project consists of two parts: Python and C++. C++ part is a DLL library that is loaded by Python application.
+This library is used to enumerate video devices. Python part is responsible for image capturing, image processing and writing processed image to a virtual camera.
+
+### C++ part
+
+C++ part uses Pybind11 library to expose C++ functions to Python. It is a header-only library and hence there is no need to build it. We expose a single function
+`list_cameras`. You may see that this function returns a vector of tuples as STL types. This is possible beacuse Pybind11 has a built-in support for STL types
+and knows how to convert them to Python types.
+
+The binding is supported by	`PYBIND11_MODULE` macros.
+
+In addition, the C++ part may be used without Visual Studio and installed directly into a python environment. This is done by `setup.py` script. Run `pip install .` to install it.
+
+### Python part
+
+Python part is a Qt-based application. The GUI allows camera and filter selection. Interface is defined via QML in `app.qml` file. The main application is defined in `app.py` file.
+For simplicity all the code is inside this file.
