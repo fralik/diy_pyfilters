@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "diy_pyfilters", "diy_pyfilters\diy_pyfilters.pyproj", "{194780EB-F5DD-42AF-B738-203024557C28}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "winenumerator", "winenumerator\winenumerator.vcxproj", "{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{108C6258-5B38-4072-9F30-EEF91C38AB08}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{194780EB-F5DD-42AF-B738-203024557C28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{194780EB-F5DD-42AF-B738-203024557C28}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{194780EB-F5DD-42AF-B738-203024557C28}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{194780EB-F5DD-42AF-B738-203024557C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{194780EB-F5DD-42AF-B738-203024557C28}.Release|x64.ActiveCfg = Release|Any CPU
+		{194780EB-F5DD-42AF-B738-203024557C28}.Release|x86.ActiveCfg = Release|Any CPU
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Debug|Any CPU.Build.0 = Debug|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Debug|x64.ActiveCfg = Debug|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Debug|x64.Build.0 = Debug|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Debug|x86.ActiveCfg = Debug|Win32
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Debug|x86.Build.0 = Debug|Win32
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Release|Any CPU.ActiveCfg = Release|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Release|Any CPU.Build.0 = Release|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Release|x64.ActiveCfg = Release|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Release|x64.Build.0 = Release|x64
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Release|x86.ActiveCfg = Release|Win32
+		{A617A3D4-71DC-499A-9A8C-7B25DB8BDDA7}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C53BD4EC-1ABE-44A6-A6C2-5342CF8A00E9}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,7 @@
+numpy
+opencv-python
+requests
+pyvirtualcam
+pyside6
+pybind11
+mediapipe
