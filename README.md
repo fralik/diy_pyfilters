@@ -4,6 +4,8 @@ This repo is an example and demonstration of how one can create video filters on
 It also aims to show how one could combine Python with C++ in Windows with an ability of mixed-mode debugging in Visual Studio.
 Mixed-mode debuging allows you to debug Python and C++ code at the same time.
 
+![main gui](app.png)
+
 The basic idea of video filters is simple:
 
 * create a virtual video camera in the system
